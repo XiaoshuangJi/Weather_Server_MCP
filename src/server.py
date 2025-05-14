@@ -30,7 +30,7 @@ def get_weather(city):
     url = os.getenv('gaode_weather_url')
     params = {
         'city': adcode,
-        'key': '0c8f1b0eae0efe43c8e37ef38c6f400d',
+        'key': os.getenv('gaode_api_key'),
     }
     response = requests.get(url, params=params).json()
     if response['status'] == '0':
