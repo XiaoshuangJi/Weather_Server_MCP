@@ -56,8 +56,11 @@ class MCPClient:
             tool_call = response.choices[0].message.tool_calls[0]
             tool_name = tool_call.function.name
             city = json.loads(response.choices[0].message.tool_calls[0].function.arguments)
-            if city['location']:
-                args = {'city': city['location']}
+            if city['cityname']:
+                args = {'city': city['cityname']}
+            else:
+                print('没有输入城市名')
+                return
             results = await self.session.call_tool(tool_name, args)
             messages.append(response.choices[0].message.model_dump())
             messages.append({
@@ -70,6 +73,10 @@ class MCPClient:
                 messages=messages,
             )
             print(response.choices[0].message.content)
+        elif response.choices[0].finish_reason == 'stop':
+            print(response.choices[0].message.content)
+        else:
+            print('Other Finish Reason')
     
     async def cleanup(self):
         await self.exit_stack.aclose()
@@ -78,10 +85,9 @@ class MCPClient:
 async def main():
     client = MCPClient()
     await client.connect_to_server('./server.py')
-    await client.process_query("徐州天气怎么样？")
+    await client.process_query("北京有什么好玩的地方？")
     await client.cleanup()
 
 
 if __name__ == "__main__":
-    import sys
     asyncio.run(main())
